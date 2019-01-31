@@ -1,39 +1,33 @@
-import * as express from 'express';
+import { TodoModel, ITodo } from './todo';
+import { Controller, Route, Get, Post, BodyProp, Put, Delete } from 'tsoa';
 
-import { TodoModel } from './todo';
-
-const todoRoutes = express.Router();
-todoRoutes.get('/todo', async (req: express.Request, resp: express.Response, next: express.NextFunction) => {
-	try {
-		let items: any = await TodoModel.find({});
-		items = items.map((item) => { return {id: item._id, description: item.description}});
-		resp.json(items);
-	} catch (err) {
-		resp.status(500);
-		resp.end();
-		console.error('Caught error', err);
+@Route('/todo')
+export class TodoController extends Controller {
+	@Get()
+	public async getAll(): Promise<ITodo[]> {
+		try {
+			let items: any = await TodoModel.find({});
+			items = items.map((item) => { return {id: item._id, description: item.description}});
+			return items;
+		} catch (err) {
+			this.setStatus(500);
+			console.error('Caught error', err);
+		}
 	}
-});
 
-todoRoutes.post('/todo', async (req: express.Request, resp: express.Response, next: express.NextFunction) => {
-	const description = req.body['description'];
-	const item = new TodoModel({description: description});
-	await item.save();
-	resp.end();
-});
+	@Post()
+	public async create(@BodyProp() description: string) : Promise<void> {
+		const item = new TodoModel({description: description});
+		await item.save();
+	}
 
-todoRoutes.put('/todo/:id', async (req: express.Request, resp: express.Response, next: express.NextFunction) => {
-	const description = req.body['description'];
-	const id = req.params['id'];
-	await TodoModel.findOneAndUpdate({id: id}, {description: description});
-	resp.end();
-});
+	@Put('/{id}')
+	public async update(id: string, @BodyProp() description: string) : Promise<void> {
+		await TodoModel.findOneAndUpdate({_id: id}, {description: description});
+	}
 
-todoRoutes.delete('/todo/:id', async (req: express.Request, resp: express.Response, next: express.NextFunction) => {
-	const id = req.params['id'];
-
-	await TodoModel.findByIdAndRemove(id);
-	resp.end();
-});
-
-export { todoRoutes }
+	@Delete('/{id}')
+	public async remove(id: string) : Promise<void> {
+		await TodoModel.findByIdAndRemove(id);
+	}
+}

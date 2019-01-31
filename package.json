@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "nodemon -x ts-node src/main.ts"
+		"start": "nodemon -x ts-node src/main.ts",
+		"generate": "tsoa routes && tsoa swagger"
   },
   "author": "",
   "license": "ISC",
@@ -14,7 +15,9 @@
     "express": "^4.16.4",
     "mongodb": "^3.1.10",
     "mongoose": "^5.4.4",
+    "swagger-ui-express": "^4.0.2",
     "ts-node": "^7.0.1",
+    "tsoa": "^2.3.8",
     "typescript": "^3.2.2"
   },
   "devDependencies": {
